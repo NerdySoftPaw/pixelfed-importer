@@ -1,0 +1,223 @@
+<!doctype html>
+<html lang="de">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Pixelfed Importer</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <img src="logo.svg" alt="" width="30" height="30">
+      <span>Pixelfed Importer</span>
+    </div>
+    <nav class="steps" id="steps">
+      <button data-step="login"><b>1</b><span data-i18n="step.login"></span></button>
+      <button data-step="export"><b>2</b><span data-i18n="step.export"></span></button>
+      <button data-step="select"><b>3</b><span data-i18n="step.select"></span></button>
+      <button data-step="import"><b>4</b><span data-i18n="step.import"></span></button>
+    </nav>
+    <div class="top-actions">
+      <button class="ghost" id="btn-guide">📖 <span data-i18n="guide.button"></span></button>
+      <div class="lang" role="group">
+        <button data-lang="de">DE</button><button data-lang="en">EN</button>
+      </div>
+    </div>
+  </header>
+
+  <main>
+    <!-- 1 · Login -->
+    <section class="view" id="view-login" hidden>
+      <div class="center-col">
+        <div class="card welcome" id="welcome">
+          <h1 data-i18n="welcome.title"></h1>
+          <p data-i18n="welcome.text"></p>
+          <button class="link" data-guide="instagram" data-i18n="welcome.guide"></button>
+        </div>
+
+        <div class="card" id="login-form">
+          <h2 data-i18n="login.title"></h2>
+          <p class="muted" data-i18n="login.text"></p>
+          <label class="field">
+            <span data-i18n="login.instance"></span>
+            <input id="instance" list="instances" placeholder="pixelfed.social" autocomplete="off" autocapitalize="off" spellcheck="false">
+            <datalist id="instances">
+              <option value="pixelfed.social"><option value="pixelfed.de"><option value="pixelfed.art"><option value="pixey.org">
+            </datalist>
+          </label>
+          <div class="row">
+            <button class="primary" id="btn-oauth" data-i18n="login.oauth"></button>
+          </div>
+          <div class="waiting" id="oauth-wait" hidden>
+            <span class="spinner"></span>
+            <span data-i18n="login.waiting"></span>
+            <button class="ghost small" id="btn-oauth-cancel" data-i18n="common.cancel"></button>
+          </div>
+
+          <details class="token-box" id="token-box">
+            <summary data-i18n="login.token.summary"></summary>
+            <ol class="steps-list">
+              <li data-i18n-html="login.token.s1"></li>
+              <li data-i18n-html="login.token.s2"></li>
+              <li data-i18n-html="login.token.s3"></li>
+            </ol>
+            <button class="ghost small" id="btn-token-page" data-i18n="login.token.open"></button>
+            <label class="field">
+              <span data-i18n="login.token.label"></span>
+              <input id="token" type="password" autocomplete="off" spellcheck="false">
+            </label>
+            <button class="secondary" id="btn-token" data-i18n="login.token.submit"></button>
+          </details>
+          <p class="error" id="login-error" hidden></p>
+        </div>
+
+        <div class="card account-card" id="account-card" hidden>
+          <img id="acc-avatar" alt="">
+          <div>
+            <div class="muted small" data-i18n="login.signedin"></div>
+            <div class="acc-name" id="acc-name"></div>
+            <div class="muted small" id="acc-instance"></div>
+            <div class="muted small" id="acc-limits"></div>
+          </div>
+          <div class="acc-actions">
+            <button class="primary" data-goto="export" data-i18n="common.next"></button>
+            <button class="ghost small" id="btn-logout" data-i18n="login.logout"></button>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- 2 · Export -->
+    <section class="view" id="view-export" hidden>
+      <div class="center-col">
+        <div class="card">
+          <h2 data-i18n="export.title"></h2>
+          <p class="muted" data-i18n-html="export.text"></p>
+          <div class="dropzone" id="dropzone">
+            <div class="dz-icon">🗂️</div>
+            <div data-i18n="export.drop"></div>
+            <div class="row center">
+              <button class="primary" id="btn-zip" data-i18n="export.zip"></button>
+              <button class="secondary" id="btn-folder" data-i18n="export.folder"></button>
+            </div>
+          </div>
+          <div class="waiting" id="export-wait" hidden><span class="spinner"></span><span data-i18n="export.loading"></span></div>
+          <p class="error" id="export-error" hidden></p>
+          <div class="recent" id="recent" hidden>
+            <span class="muted small" data-i18n="export.recent"></span>
+            <button class="secondary small" id="btn-recent"></button>
+          </div>
+          <button class="link" data-guide="instagram" data-i18n="export.noexport"></button>
+        </div>
+      </div>
+    </section>
+
+    <!-- 3 · Select -->
+    <section class="view" id="view-select" hidden>
+      <div class="select-layout">
+        <div class="select-main">
+          <div class="toolbar">
+            <div class="chips" id="source-chips"></div>
+            <select id="year-filter"></select>
+            <input id="search" type="search" data-i18n-placeholder="select.search">
+            <label class="check"><input type="checkbox" id="hide-imported"> <span data-i18n="select.hideImported"></span></label>
+          </div>
+          <div class="toolbar sub">
+            <span class="muted small" id="visible-count"></span>
+            <button class="ghost small" id="sel-all" data-i18n="select.all"></button>
+            <button class="ghost small" id="sel-none" data-i18n="select.none"></button>
+            <button class="ghost small" id="sel-invert" data-i18n="select.invert"></button>
+          </div>
+          <div class="grid" id="grid"></div>
+        </div>
+
+        <aside class="sidebar card">
+          <h3 data-i18n="opts.title"></h3>
+          <label class="field">
+            <span data-i18n="opts.visibility"></span>
+            <select id="opt-visibility">
+              <option value="unlisted" data-i18n="opts.vis.unlisted"></option>
+              <option value="public" data-i18n="opts.vis.public"></option>
+              <option value="private" data-i18n="opts.vis.private"></option>
+            </select>
+            <small class="muted" id="vis-hint"></small>
+          </label>
+          <label class="check"><input type="checkbox" id="opt-footer"> <span data-i18n="opts.footer"></span></label>
+          <input id="opt-footer-text" class="indent">
+          <label class="check"><input type="checkbox" id="opt-sensitive"> <span data-i18n="opts.sensitive"></span></label>
+          <label class="field">
+            <span data-i18n="opts.delay"></span>
+            <select id="opt-delay">
+              <option value="2">2 s</option><option value="5">5 s</option><option value="15">15 s</option><option value="30">30 s</option><option value="60">60 s</option>
+            </select>
+            <small class="muted" data-i18n="opts.delayHint"></small>
+          </label>
+          <div class="summary" id="summary"></div>
+          <button class="primary big" id="btn-start"></button>
+          <button class="link" data-guide="import" data-i18n="opts.help"></button>
+        </aside>
+      </div>
+    </section>
+
+    <!-- 4 · Import -->
+    <section class="view" id="view-import" hidden>
+      <div class="center-col wide">
+        <div class="card">
+          <div class="import-head">
+            <h2 id="import-title"></h2>
+            <div class="row">
+              <button class="secondary" id="btn-pause"></button>
+              <button class="danger" id="btn-stop" data-i18n="import.stop"></button>
+            </div>
+          </div>
+          <div class="progress"><div id="bar"></div></div>
+          <div class="stats">
+            <div><b id="st-ok">0</b><span data-i18n="import.ok"></span></div>
+            <div><b id="st-failed">0</b><span data-i18n="import.failed"></span></div>
+            <div><b id="st-left">0</b><span data-i18n="import.left"></span></div>
+            <div><b id="st-eta">–</b><span data-i18n="import.eta"></span></div>
+          </div>
+          <div class="current" id="current"></div>
+          <div class="done-box" id="done-box" hidden>
+            <div class="row">
+              <button class="primary" id="btn-profile" data-i18n="import.profile"></button>
+              <button class="secondary" id="btn-retry" data-i18n="import.retry" hidden></button>
+              <button class="secondary" data-goto="select" data-i18n="import.back"></button>
+            </div>
+          </div>
+        </div>
+        <h3 data-i18n="import.log"></h3>
+        <ul class="log" id="log"></ul>
+      </div>
+    </section>
+  </main>
+
+  <!-- Guide drawer -->
+  <div class="drawer-backdrop" id="drawer-backdrop" hidden></div>
+  <aside class="drawer" id="guide" hidden>
+    <div class="drawer-head">
+      <h2 data-i18n="guide.title"></h2>
+      <button class="ghost" id="btn-guide-close" aria-label="close">✕</button>
+    </div>
+    <nav class="guide-toc" id="guide-toc"></nav>
+    <div class="guide-body" id="guide-body"></div>
+  </aside>
+
+  <!-- Post preview -->
+  <div class="modal-backdrop" id="modal" hidden>
+    <div class="modal card">
+      <button class="ghost close" id="modal-close">✕</button>
+      <div class="modal-media" id="modal-media"></div>
+      <div class="modal-meta" id="modal-meta"></div>
+      <h4 data-i18n="preview.caption"></h4>
+      <pre class="caption-preview" id="modal-caption"></pre>
+    </div>
+  </div>
+
+  <div class="toast" id="toast" hidden></div>
+
+  <script src="i18n.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
