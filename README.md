@@ -3,7 +3,9 @@
 Move your Instagram posts to [Pixelfed](https://pixelfed.org), including photos, albums, videos and captions. It's a small desktop app for macOS and Windows with a step-by-step guide built in. A command-line script is included too.
 
 > **🤖 Heads-up: this project is vibecoded.**
-> It was built in one evening together with an AI coding assistant ([Claude Code](https://claude.com/claude-code)). I described what I wanted and tested the result against my own account, but I didn't write every line by hand. It worked for moving my own posts. Expect rough edges, read what it's about to do, and maybe try it with a few posts first. Bug reports and PRs are very welcome.
+> It was built in one evening together with an AI coding assistant ([Claude Code](https://claude.com/claude-code)). I described what I wanted and tested the result against my own account, but I didn't write every line by hand.
+>
+> That said, it's not blind copy-paste: I work as a DevOps engineer and understand what Claude built and why. It worked for moving my own posts. Still, expect rough edges and maybe try it with a few posts first. Bug reports and PRs are very welcome.
 
 ![Select the posts you want to import](docs/select.png)
 
